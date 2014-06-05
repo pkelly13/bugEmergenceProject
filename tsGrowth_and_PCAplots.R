@@ -69,3 +69,42 @@ plot(avgSes.pufa,chick.growth)
 summary(lm(chick.growth~avgSes.pufa)) #r2=0.43 p=0.154 slope = -0.0088
 
 #Story so far -> chick growth influenced strongly by PUFA availability, but PUFA availability in aquatic primary production or seston does not seem to be a driver of that availability in forgaing.  PUFAs in the diet moreso a function of the taxonomic composition of the prey, and the availaility of "high PUFA" taxa compared to lower PUFA taxa (i.e. mainly brachyceran diptera) - therefore fatty acid characteristics of a subsidy appear to be vitally important for tree swallow nestling growth.
+
+#makes bar graphs of average PUFA, EPA, DHA, ALA, ARA, and LIN for seston, boli, and birds
+pufa.table<-data.frame(avgSes.pufa,avgBolus.pufa,avgChick.pufa)
+pufa.table<-t(pufa.table)
+
+barplot(pufa.table,beside=T) #This should probably be in %total fatty acids
+
+#load water quality data to compare primary production to FA availability in chicks/bolus/bugs, but with bugs do multiple regression with taxa and time as variables
+#load water quality data
+wq<-read.csv('SPPPWQ.csv')
+wq$Date<-sub('/14','/10',wq$Date)
+
+chl<-c() #add water chemistry data to bug.fa dat to look at influence of limnological conditions on fatty acids
+tpk<-c()
+tnk<-c()
+tss<-c()
+vss<-c()
+for(i in 1:nrow(bug.fa)){
+	samplei=bug.fa[i,]
+	wqi=wq[wq$Site_Abrreviation==samplei$Site_Abbrev,]
+	wqi=wqi[!is.na(wqi$tpk),]
+	x=wqi[which(min(abs(as.Date(samplei$Collection_date,'%m/%d/%y')-as.Date(wqi$Date,'%m/%d/%y')))==abs(as.Date(samplei$Collection_date,'%m/%d/%y')-as.Date(wqi$Date,'%m/%d/%y'))),]
+	chl[i]=wqi$chlorophyll
+	tpk[i]=wqi$tpk
+	tnk[i]=wqi$tnk
+	tss[i]=wqi$tss
+	vss[i]=wqi$vss
+}
+bug.fa$chl=chl
+bug.fa$TP=tpk
+bug.fa$TN=tnk
+bug.fa$tss=tss
+bug.fa$vss=vss
+
+plot(bug.fa$chl,bug.fa$PUFA)
+summary(lm(bug.fa$PUFA~bug.fa$chl)) #r2=0.06 p=0.003 slope=-0.08
+summary(lm(bug.fa$PUFA~bug.fa$chl+as.factor(bug.fa$Family))) #r2=0.39 p=0.0000007
+
+
