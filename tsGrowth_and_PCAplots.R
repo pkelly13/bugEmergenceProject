@@ -117,92 +117,96 @@ dha.table<-t(dha.table)
 se.dha.table<-data.frame(seSes.dha,seBolus.dha,seChick.dha)
 se.dha.table<-t(se.dha.table)
 
-par(mfrow=c(2,2))
-table=epa.table
-se.table=se.epa.table
-barplot(table,beside=T,ylim=c(0,max(se.table+table)),main='EPA') 
-error.bar(1.5,table[1,1],upper=se.table[1,1],lower=0)
-error.bar(2.5,table[2,1],upper=se.table[2,1],lower=0)
-error.bar(3.5,table[3,1],upper=se.table[3,1],lower=0)
-error.bar(5.5,table[1,2],upper=se.table[1,2],lower=0)
-error.bar(6.5,table[2,2],upper=se.table[2,2],lower=0)
-error.bar(7.5,table[3,2],upper=se.table[3,2],lower=0)
-error.bar(9.5,table[1,3],upper=se.table[1,3],lower=0)
-error.bar(10.5,table[2,3],upper=se.table[2,3],lower=0)
-error.bar(11.5,table[3,3],upper=se.table[3,3],lower=0)
-error.bar(13.5,table[1,4],upper=se.table[1,4],lower=0)
-error.bar(14.5,table[2,4],upper=se.table[2,4],lower=0)
-error.bar(15.5,table[3,4],upper=se.table[3,4],lower=0)
-error.bar(17.5,table[1,5],upper=se.table[1,5],lower=0)
-error.bar(18.5,table[2,5],upper=se.table[2,5],lower=0)
-error.bar(19.5,table[3,5],upper=se.table[3,5],lower=0)
-error.bar(21.5,table[1,6],upper=se.table[1,6],lower=0)
-error.bar(22.5,table[2,6],upper=se.table[2,6],lower=0)
-error.bar(23.5,table[3,6],upper=se.table[3,6],lower=0)
 
-table<-dha.table
-se.table<-se.dha.table
-barplot(table,beside=T,ylim=c(0,max(se.table+table)),main='DHA') 
-error.bar(1.5,table[1,1],upper=se.table[1,1],lower=0)
-error.bar(2.5,table[2,1],upper=se.table[2,1],lower=0)
-error.bar(3.5,table[3,1],upper=se.table[3,1],lower=0)
-error.bar(5.5,table[1,2],upper=se.table[1,2],lower=0)
-error.bar(6.5,table[2,2],upper=se.table[2,2],lower=0)
-error.bar(7.5,table[3,2],upper=se.table[3,2],lower=0)
-error.bar(9.5,table[1,3],upper=se.table[1,3],lower=0)
-error.bar(10.5,table[2,3],upper=se.table[2,3],lower=0)
-error.bar(11.5,table[3,3],upper=se.table[3,3],lower=0)
-error.bar(13.5,table[1,4],upper=se.table[1,4],lower=0)
-error.bar(14.5,table[2,4],upper=se.table[2,4],lower=0)
-error.bar(15.5,table[3,4],upper=se.table[3,4],lower=0)
-error.bar(17.5,table[1,5],upper=se.table[1,5],lower=0)
-error.bar(18.5,table[2,5],upper=se.table[2,5],lower=0)
-error.bar(19.5,table[3,5],upper=se.table[3,5],lower=0)
-error.bar(21.5,table[1,6],upper=se.table[1,6],lower=0)
-error.bar(22.5,table[2,6],upper=se.table[2,6],lower=0)
-error.bar(23.5,table[3,6],upper=se.table[3,6],lower=0)
+#calculate all of the above in % total fatty acids by dividing concentration by total fatty acids column - make a new data frame for each
+#seston
+ses.ptfa<-c()
+for(i in 6:57){
+	ses.ptfa<-cbind(ses.ptfa,(ses.fa[,i]/ses.fa[,58])*100)
+}
+colnames(ses.ptfa)=colnames(ses.fa[6:57])
+ses.ptfa<-cbind(ses.fa[,1:5],ses.ptfa)
+#bugs
+bug.ptfa<-c()
+for(i in 5:29){
+	bug.ptfa<-cbind(bug.ptfa,(bug.fa[,i]/bug.fa[,30])*100)
+}
+colnames(bug.ptfa)<-colnames(bug.fa[5:29])
+bug.ptfa<-cbind(bug.fa[,1:4],bug.ptfa)
+#bolus
+bolus.ptfa<-c()
+for(i in 6:53){
+	bolus.ptfa<-cbind(bolus.ptfa,(bolus.fa[,i]/bolus.fa[,54])*100)
+}
+colnames(bolus.ptfa)<-colnames(bolus.fa[6:53])
+bolus.ptfa<-cbind(bolus.fa[,1:5],bolus.ptfa)
+#TS chicks
+chick.ptfa<-c()
+for(i in 17:68){
+	chick.ptfa<-cbind(chick.ptfa,(chick.fa[,i]/chick.fa[,69])*100)
+}
+colnames(chick.ptfa)<-colnames(chick.fa[17:68])
+chick.ptfa<-cbind(chick.fa[,1:17],chick.ptfa)
 
-table<-w3.table
-se.table<-se.w3.table
-barplot(table,beside=T,ylim=c(0,max(se.table+table)),main=expression(paste(omega,'3'))) 
-error.bar(1.5,table[1,1],upper=se.table[1,1],lower=0)
-error.bar(2.5,table[2,1],upper=se.table[2,1],lower=0)
-error.bar(3.5,table[3,1],upper=se.table[3,1],lower=0)
-error.bar(5.5,table[1,2],upper=se.table[1,2],lower=0)
-error.bar(6.5,table[2,2],upper=se.table[2,2],lower=0)
-error.bar(7.5,table[3,2],upper=se.table[3,2],lower=0)
-error.bar(9.5,table[1,3],upper=se.table[1,3],lower=0)
-error.bar(10.5,table[2,3],upper=se.table[2,3],lower=0)
-error.bar(11.5,table[3,3],upper=se.table[3,3],lower=0)
-error.bar(13.5,table[1,4],upper=se.table[1,4],lower=0)
-error.bar(14.5,table[2,4],upper=se.table[2,4],lower=0)
-error.bar(15.5,table[3,4],upper=se.table[3,4],lower=0)
-error.bar(17.5,table[1,5],upper=se.table[1,5],lower=0)
-error.bar(18.5,table[2,5],upper=se.table[2,5],lower=0)
-error.bar(19.5,table[3,5],upper=se.table[3,5],lower=0)
-error.bar(21.5,table[1,6],upper=se.table[1,6],lower=0)
-error.bar(22.5,table[2,6],upper=se.table[2,6],lower=0)
-error.bar(23.5,table[3,6],upper=se.table[3,6],lower=0)
+#Calculate averages similar to above
+#calculate average PUFA, epa, w3, and dha for bolus
+avgBolus.pufa<-tapply(bolus.ptfa$PUFA,bolus.ptfa$Site_Abbrev,mean,na.rm=T)
+seBolus.pufa<-tapply(bolus.ptfa$PUFA,bolus.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.epa<-tapply(bolus.ptfa$C22_5n3c,bolus.ptfa$Site_Abbrev,mean,na.rm=T)
+seBolus.epa<-tapply(bolus.ptfa$C22_5n3c,bolus.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.w3<-tapply(bolus.ptfa$Omega3,bolus.ptfa$Site_Abbrev,mean,na.rm=T)
+seBolus.w3<-tapply(bolus.ptfa$Omega3,bolus.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.dha<-tapply(bolus.ptfa$C22_6n3,bolus.ptfa$Site_Abbrev,mean,na.rm=T)
+seBolus.dha<-tapply(bolus.ptfa$C22_6n3,bolus.ptfa$Site_Abbrev,std.error,na.rm=T)
 
-barplot(pufa.table,beside=T,ylim=c(0,max(se.pufa.table+pufa.table)),main='PUFA') 
-error.bar(1.5,pufa.table[1,1],upper=se.pufa.table[1,1],lower=0)
-error.bar(2.5,pufa.table[2,1],upper=se.pufa.table[2,1],lower=0)
-error.bar(3.5,pufa.table[3,1],upper=se.pufa.table[3,1],lower=0)
-error.bar(5.5,pufa.table[1,2],upper=se.pufa.table[1,2],lower=0)
-error.bar(6.5,pufa.table[2,2],upper=se.pufa.table[2,2],lower=0)
-error.bar(7.5,pufa.table[3,2],upper=se.pufa.table[3,2],lower=0)
-error.bar(9.5,pufa.table[1,3],upper=se.pufa.table[1,3],lower=0)
-error.bar(10.5,pufa.table[2,3],upper=se.pufa.table[2,3],lower=0)
-error.bar(11.5,pufa.table[3,3],upper=se.pufa.table[3,3],lower=0)
-error.bar(13.5,pufa.table[1,4],upper=se.pufa.table[1,4],lower=0)
-error.bar(14.5,pufa.table[2,4],upper=se.pufa.table[2,4],lower=0)
-error.bar(15.5,pufa.table[3,4],upper=se.pufa.table[3,4],lower=0)
-error.bar(17.5,pufa.table[1,5],upper=se.pufa.table[1,5],lower=0)
-error.bar(18.5,pufa.table[2,5],upper=se.pufa.table[2,5],lower=0)
-error.bar(19.5,pufa.table[3,5],upper=se.pufa.table[3,5],lower=0)
-error.bar(21.5,pufa.table[1,6],upper=se.pufa.table[1,6],lower=0)
-error.bar(22.5,pufa.table[2,6],upper=se.pufa.table[2,6],lower=0)
-error.bar(23.5,pufa.table[3,6],upper=se.pufa.table[3,6],lower=0)
+#do the same for TS chicks
+avgChick.pufa<-tapply(chick.ptfa$PUFA,chick.ptfa$Site_Abbrev,mean,na.rm=T)
+seChick.pufa<-tapply(chick.ptfa$PUFA,chick.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgChick.epa<-tapply(chick.ptfa$C22_5n3c,chick.ptfa$Site_Abbrev,mean,na.rm=T)
+seChick.epa<-tapply(chick.ptfa$C22_5n3c,chick.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgChick.w3<-tapply(chick.ptfa$Omega3,chick.ptfa$Site_Abbrev,mean,na.rm=T)
+seChick.w3<-tapply(chick.ptfa$Omega3,chick.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgChick.dha<-tapply(chick.ptfa$C22_6n3,chick.ptfa$Site_Abbrev,mean,na.rm=T)
+seChick.dha<-tapply(chick.ptfa$C22_6n3,chick.ptfa$Site_Abbrev,std.error,na.rm=T)
+
+#do the same for seston
+avgSes.pufa<-tapply(ses.ptfa$PUFA,ses.ptfa$Site_Abbrev,mean,na.rm=T)
+seSes.pufa<-tapply(ses.ptfa$PUFA,ses.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgSes.epa<-tapply(ses.ptfa$C22_5n3c,ses.ptfa$Site_Abbrev,mean,na.rm=T)
+seSes.epa<-tapply(ses.ptfa$C22_5n3c,ses.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgSes.w3<-tapply(ses.ptfa$Omega3,ses.ptfa$Site_Abbrev,mean,na.rm=T)
+seSes.w3<-tapply(ses.ptfa$Omega3,ses.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgSes.dha<-tapply(ses.ptfa$C22_6n3,ses.ptfa$Site_Abbrev,mean,na.rm=T)
+seSes.dha<-tapply(ses.ptfa$C22_6n3,ses.ptfa$Site_Abbrev,std.error,na.rm=T)
+
+#Also do it for all bugs, irregardless of taxa
+avgBug.pufa<-tapply(bug.ptfa$PUFA,bug.ptfa$Site_Abbrev,mean,na.rm=T)
+seBug.pufa<-tapply(bug.ptfa$PUFA,bug.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgBug.epa<-tapply(bug.ptfa$C22_5n3c,bug.ptfa$Site_Abbrev,mean,na.rm=T)
+seBug.epa<-tapply(bug.ptfa$C22_5n3c,bug.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgBug.dha<-tapply(bug.ptfa$DHAC22_6n3,bug.ptfa$Site_Abbrev,mean,na.rm=T)
+seBug.dha<-tapply(bug.ptfa$DHAC22_6n3,bug.ptfa$Site_Abbrev,std.error,na.rm=T)
+avgBug.w3<-tapply(bug.ptfa$Omega3,bug.ptfa$Site_Abbrev,mean,na.rm=T)
+seBug.w3<-tapply(bug.ptfa$Omega3,bug.ptfa$Site_Abbrev,std.error,na.rm=T)
+
+#Barplot of comparisons among seston, bolus, and bird fatty acids
+#start with PUFAs ----- this time with percent fatty acids
+pufa.table<-data.frame(avgSes.pufa,avgBug.pufa,avgBolus.pufa,avgChick.pufa)
+pufa.table<-t(pufa.table)
+se.pufa.table<-data.frame(seSes.pufa,seBug.pufa,seBolus.pufa,seChick.pufa)
+se.pufa.table<-t(se.pufa.table)
+w3.table<-data.frame(avgSes.w3,avgBug.w3,avgBolus.w3,avgChick.w3)
+w3.table<-t(w3.table)
+se.w3.table<-data.frame(seSes.w3,seBug.w3,seBolus.w3,seChick.w3)
+se.w3.table<-t(se.w3.table)
+epa.table<-data.frame(avgSes.epa,avgBug.epa,avgBolus.epa,avgChick.epa)
+epa.table<-t(epa.table)
+se.epa.table<-data.frame(seSes.epa,seBug.epa,seBolus.epa,seChick.epa)
+se.epa.table<-t(se.epa.table)
+dha.table<-data.frame(avgSes.dha,avgBug.dha,avgBolus.dha,avgChick.dha)
+dha.table<-t(dha.table)
+se.dha.table<-data.frame(seSes.dha,seBug.dha,seBolus.dha,seChick.dha)
+se.dha.table<-t(se.dha.table)
 
 
 #load water quality data to compare primary production to FA availability in chicks/bolus/bugs, but with bugs do multiple regression with taxa and time as variables
