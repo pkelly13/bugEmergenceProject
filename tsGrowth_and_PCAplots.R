@@ -1,4 +1,4 @@
-#This script looks at the differences in tree swallow chick fatty acids across sites and makes comparisons to bolus fatty acids, bug FAs, and seston FAs - script looks at seasonal trends in PUFAs in the seston, in the bugs and in birds.  Also does NMDS to see if bugs, primary production, and birds all have similar FA profiles
+#This script looks at the differences in tree swallow chick fatty acids across sites and makes comparisons to bolus fatty acids, bug FAs, and seston FAs - script looks at seasonal trends in PUFAs in the seston, in the bugs and in birds.  Also does PCA to see if bugs, primary production, and birds all have similar FA profiles
 #PTK 24 May 2014
 
 library(vegan)
@@ -52,7 +52,7 @@ bolus.dist<-vegdist(bolusFA)
 bolus.pcoa<-cmdscale(bolus.dist)
 
 plot(bolus.pcoa,cex=0)
-text(bolus.pcoa[,1],bolus.pcoa[,2],bolus.fa$Site_Abbrev)
+text(bolus.pcoa[,1],bolus.pcoa[,2],bolus.fa$Site_Abbrev,col=c(rep('red',nrow(bolus.fa[bolus.fa$Site_Abbrev=='BN',])),rep('blue',nrow(bolus.fa[bolus.fa$Site_Abbrev=='BS',])),rep('green',nrow(bolus.fa[bolus.fa$Site_Abbrev=='EN',])),rep('orange',nrow(bolus.fa[bolus.fa$Site_Abbrev=='ES',])),rep('violet',nrow(bolus.fa[bolus.fa$Site_Abbrev=='LL',])),rep('cyan',nrow(bolus.fa[bolus.fa$Site_Abbrev=='SH',]))))
 
 #Compare chick growth to fatty acids in bolus as well as in livers and seston FA concentration
 #calculate averages for pufa, omega 3, epa, dha
@@ -94,7 +94,6 @@ seSes.dha<-tapply(ses.fa$C22_6n3,ses.fa$Site_Abbrev,std.error,na.rm=T)
 plot(avgSes.pufa,chick.growth)
 summary(lm(chick.growth~avgSes.pufa)) #r2=0.43 p=0.154 slope = -0.0088
 
-#Story so far -> chick growth influenced strongly by PUFA availability, but PUFA availability in aquatic primary production or seston does not seem to be a driver of that availability in forgaing.  PUFAs in the diet moreso a function of the taxonomic composition of the prey, and the availaility of "high PUFA" taxa compared to lower PUFA taxa (i.e. mainly brachyceran diptera) - therefore fatty acid characteristics of a subsidy appear to be vitally important for tree swallow nestling growth.
 
 #makes bar graphs of average PUFA, EPA, DHA, ALA, ARA, and LIN for seston, boli, and birds
 
@@ -209,35 +208,62 @@ se.dha.table<-data.frame(seSes.dha,seBug.dha,seBolus.dha,seChick.dha)
 se.dha.table<-t(se.dha.table)
 
 
-#load water quality data to compare primary production to FA availability in chicks/bolus/bugs, but with bugs do multiple regression with taxa and time as variables
-#load water quality data
-wq<-read.csv('SPPPWQ.csv')
-wq$Date<-sub('/14','/10',wq$Date)
+####<------------------------------------------------------>####
 
-chl<-c() #add water chemistry data to bug.fa dat to look at influence of limnological conditions on fatty acids
-tpk<-c()
-tnk<-c()
-tss<-c()
-vss<-c()
-for(i in 1:nrow(bug.fa)){
-	samplei=bug.fa[i,]
-	wqi=wq[wq$Site_Abrreviation==samplei$Site_Abbrev,]
-	wqi=wqi[!is.na(wqi$tpk),]
-	x=wqi[which(min(abs(as.Date(samplei$Collection_date,'%m/%d/%y')-as.Date(wqi$Date,'%m/%d/%y')))==abs(as.Date(samplei$Collection_date,'%m/%d/%y')-as.Date(wqi$Date,'%m/%d/%y'))),]
-	chl[i]=wqi$chlorophyll
-	tpk[i]=wqi$tpk
-	tnk[i]=wqi$tnk
-	tss[i]=wqi$tss
-	vss[i]=wqi$vss
-}
-bug.fa$chl=chl
-bug.fa$TP=tpk
-bug.fa$TN=tnk
-bug.fa$tss=tss
-bug.fa$vss=vss
+#Look at transfer of bacterial fatty acids seston, bolus, and birds
+#Seston first
+avgSes.c15i<-tapply(ses.fa$C15_0i,ses.fa$Site_Abbrev,mean,na.rm=T)
+seSes.c15i<-tapply(ses.fa$C15_0i,ses.fa$Site_Abbrev,std.error,na.rm=T)
+avgSes.c15ai<-tapply(ses.fa$C15ai,ses.fa$Site_Abbrev,mean,na.rm=T)
+seSes.c15ai<-tapply(ses.fa$C15ai,ses.fa$Site_Abbrev,std.error,na.rm=T)
+avgSes.c15<-tapply(ses.fa$C15_0,ses.fa$Site_Abbrev,mean,na.rm=T)
+seSes.c15<-tapply(ses.fa$C15_0,ses.fa$Site_Abbrev,std.error,na.rm=T)
+avgSes.c151<-tapply(ses.fa$C15_1,ses.fa$Site_Abbrev,mean,na.rm=T)
+seSes.c151<-tapply(ses.fa$C15_1,ses.fa$Site_Abbrev,std.error,na.rm=T)
+avgSes.c17<-tapply(ses.fa$C17_0,ses.fa$Site_Abbrev,mean,na.rm=T)
+seSes.c17<-tapply(ses.fa$C17_0,ses.fa$Site_Abbrev,std.error,na.rm=T)
 
-plot(bug.fa$chl,bug.fa$PUFA)
-summary(lm(bug.fa$PUFA~bug.fa$chl)) #r2=0.06 p=0.003 slope=-0.08
-summary(lm(bug.fa$PUFA~bug.fa$chl+as.factor(bug.fa$Family))) #r2=0.39 p=0.0000007
+#Bolus
+avgBolus.c15i<-tapply(bolus.fa$C15_0i,bolus.fa$Site_Abbrev,mean,na.rm=T)
+seBolus.c15i<-tapply(bolus.fa$C15_0i,bolus.fa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.c15ai<-tapply(bolus.fa$C15ai,bolus.fa$Site_Abbrev,mean,na.rm=T)
+seBolus.c15ai<-tapply(bolus.fa$C15ai,bolus.fa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.c15<-tapply(bolus.fa$C15_0,bolus.fa$Site_Abbrev,mean,na.rm=T)
+seBolus.c15<-tapply(bolus.fa$C15_0,bolus.fa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.c151<-tapply(bolus.fa$C15_1,bolus.fa$Site_Abbrev,mean,na.rm=T)
+seBolus.c151<-tapply(bolus.fa$C15_1,bolus.fa$Site_Abbrev,std.error,na.rm=T)
+avgBolus.c17<-tapply(bolus.fa$C17_0,bolus.fa$Site_Abbrev,mean,na.rm=T)
+seBolus.c17<-tapply(bolus.fa$C17_0,bolus.fa$Site_Abbrev,std.error,na.rm=T)
 
+#Birds
+avgChick.c15i<-tapply(chick.fa$C15_0i,chick.fa$Site_Abbrev,mean,na.rm=T)
+seChick.c15i<-tapply(chick.fa$C15_0i,chick.fa$Site_Abbrev,std.error,na.rm=T)
+avgChick.c15ai<-tapply(chick.fa$C15ai,chick.fa$Site_Abbrev,mean,na.rm=T)
+seChick.c15ai<-tapply(chick.fa$C15ai,chick.fa$Site_Abbrev,std.error,na.rm=T)
+avgChick.c15<-tapply(chick.fa$C15_0,chick.fa$Site_Abbrev,mean,na.rm=T)
+seChick.c15<-tapply(chick.fa$C15_0,chick.fa$Site_Abbrev,std.error,na.rm=T)
+avgChick.c151<-tapply(chick.fa$C15_1,chick.fa$Site_Abbrev,mean,na.rm=T)
+seChick.c151<-tapply(chick.fa$C15_1,chick.fa$Site_Abbrev,std.error,na.rm=T)
+avgChick.c17<-tapply(chick.fa$C17_0,chick.fa$Site_Abbrev,mean,na.rm=T)
+seChick.c17<-tapply(chick.fa$C17_0,chick.fa$Site_Abbrev,std.error,na.rm=T)
 
+c15i.table<-data.frame(avgSes.c15i,avgBolus.c15i,avgChick.c15i)
+c15i.table<-t(c15i.table)
+se.c15i.table<-data.frame(seSes.c15i,seBolus.c15i,seChick.c15i)
+se.c15i.table<-t(se.c15i.table)
+c15ai.table<-data.frame(avgSes.c15ai,avgBolus.c15ai,avgChick.c15ai)
+c15ai.table<-t(c15ai.table)
+se.c15ai.table<-data.frame(seSes.c15ai,seBolus.c15ai,seChick.c15ai)
+se.c15ai.table<-t(se.c15ai.table)
+c15.table<-data.frame(avgSes.c15,avgBolus.c15,avgChick.c15)
+c15.table<-t(c15.table)
+se.c15.table<-data.frame(seSes.c15,seBolus.c15,seChick.c15)
+se.c15.table<-t(se.c15.table)
+c151.table<-data.frame(avgSes.c151,avgBolus.c151,avgChick.c151)
+c151.table<-t(c151.table)
+se.c151.table<-data.frame(seSes.c151,seBolus.c151,seChick.c151)
+se.c151.table<-t(se.c151.table)
+c17.table<-data.frame(avgSes.c17,avgBolus.c17,avgChick.c17)
+c17.table<-t(c17.table)
+se.c17.table<-data.frame(seSes.c17,seBolus.c17,seChick.c17)
+se.c17.table<-t(se.c17.table)
