@@ -20,6 +20,9 @@ ses.fa<-read.csv('SES63_FAs.csv')
 #load chick growth data
 chickGrowth<-read.csv('chickGrowth_25Nov2013.csv')
 
+#load water quality data
+wqData<-read.csv('SPPPWQ.csv')
+
 #pcoa with seston data
 #This looks at how the FA profiles across all sites and time points are different from each other
 ses<-ses.fa[,6:52]
@@ -28,10 +31,47 @@ ses<-as.matrix(ses)
 ses.dist<-vegdist(ses,method='bray')
 ses.pcoa<-cmdscale(ses.dist)
 
+anosim(ses.dist,grouping=ses.fa[,2]) #sig. = 0.001
+
+#make data frame of environmental variables and specific fatty acids to run envfit
+#start with specific fatty acids.  Just use the sites and the columns of fatty acids
+fa<-data.frame(ses.fa[,10:(ncol(ses.fa)-6)])
+fit<-envfit(ses.dist,fa)
+
+#make data frame of environmental variables using the mean of wq data
+TP<-tapply(wqData$tpk,wqData$Site_Abrreviation,mean,na.rm=T)
+SRP<-tapply(wqData$srpk,wqData$Site_Abrreviation,mean,na.rm=T)
+TN<-tapply(wqData$tnk,wqData$Site_Abrreviation,mean,na.rm=T)
+NO3<-tapply(wqData$nox_nc,wqData$Site_Abrreviation,mean,na.rm=T)
+NH4<-tapply(wqData$nhx_n,wqData$Site_Abrreviation,mean,na.rm=T)
+tss<-tapply(wqData$tss,wqData$Site_Abrreviation,mean,na.rm=T)
+vss<-tapply(wqData$vss,wqData$Site_Abrreviation,mean,na.rm=T)
+chl<-tapply(wqData$chlorophyll,wqData$Site_Abrreviation,mean,na.rm=T)
+wqTable<-data.frame(site=c('BN','BS','EN','ES','LL','SH'),TP,SRP,TN,NO3,NH4,tss,vss,chl)
+
+
+#Make a table of these data to match to and make enviro. variable data frame
+envTable<-c()
+for(i in 1:nrow(ses.fa)){
+	rowi=match(ses.fa$Site_Abbrev[i],wqTable$site)
+	tp=wqTable$TP[rowi]
+	srp=wqTable$SRP[rowi]
+	tn=wqTable$TN[rowi]
+	no3=wqTable$NO3[rowi]
+	nh4=wqTable$NH4[rowi]
+	tss=wqTable$tss[rowi]
+	vss=wqTable$vss[rowi]
+	chl=wqTable$chl[rowi]
+	x=data.frame(tp,srp,tn,no3,nh4,tss,vss,chl)
+	envTable=rbind(x,envTable)
+}
+
+fit.wq<-envfit(ses.dist,envTable)
+
 plot(ses.pcoa,pch=19,cex=0,xlab='PCA1',ylab='PCA2',col=c(rep('red',8),rep('blue',8),rep('green',8),rep('orange',8),rep('violet',8),rep('cyan',8)))
 text(ses.pcoa[,1],ses.pcoa[,2],ses.fa[,2],col=c(rep('red',8),rep('blue',8),rep('green',8),rep('orange',8),rep('violet',8),rep('cyan',8))) #It looks like there is strong grouping by river (ILR v UMR v Em.)
-
-anosim(ses.dist,grouping=ses.fa[,2]) #sig. = 0.001
+plot(fit,p.max=0.05,col='black',cex=0.5)
+plot(fit.wq,p.max=0.05,col='red',cex=0.5)
 
 #Now try this with bird FA data
 chickFA<-chick.fa[,as.numeric(c(17:63))]
@@ -40,20 +80,59 @@ chickFA<-as.matrix(chickFA)
 chick.dist<-vegdist(chickFA,method='bray')
 chick.pcoa<-cmdscale(chick.dist)
 
+chickfa<-data.frame(chick.fa[,c(6,10,21,23:27,30:32,35:38,40:49,51:54,57:60,62:63)])
+chickfa.fit<-envfit(chick.dist,chickfa)
+
+envTable<-c()
+for(i in 1:nrow(chick.fa)){
+	rowi=match(chick.fa$Site_Abbrev[i],wqTable$site)
+	tp=wqTable$TP[rowi]
+	srp=wqTable$SRP[rowi]
+	tn=wqTable$TN[rowi]
+	no3=wqTable$NO3[rowi]
+	nh4=wqTable$NH4[rowi]
+	tss=wqTable$tss[rowi]
+	vss=wqTable$vss[rowi]
+	chl=wqTable$chl[rowi]
+	x=data.frame(tp,srp,tn,no3,nh4,tss,vss,chl)
+	envTable=rbind(x,envTable)
+}
+
+fit.wq<-envfit(chick.dist,envTable)
+
 plot(chick.pcoa,cex=0,xlab='PCA1',ylab='PCA2') #No real grouping by site
 text(chick.pcoa[,1],chick.pcoa[,2],chick.fa$Site_Abbrev,col=c(rep('red',5),rep('blue',15),rep('green',12),rep('orange',10),rep('violet',10),rep('cyan',10)))
-
-
+#plot(chickfa.fit,p.max=0.05,col='black')
+plot(chickfa.fit,p.max=0.05,col='black')
 summary(anosim(chick.dist,grouping=chick.fa$Site_Abbrev)) #significance = 0.001
 
 #PCA with bolus data
-bolusFA<-as.matrix(bolus.fa[,6:48])
+bolusFA<-as.matrix(bolus.fa[,c(6:18,20:23,25:28,30,32:39,42:45,47:48)])
 
 bolus.dist<-vegdist(bolusFA)
 bolus.pcoa<-cmdscale(bolus.dist)
+bolusFA.fit<-envfit(bolus.dist,bolusFA)
+
+envTable<-c()
+for(i in 1:nrow(bolus.fa)){
+	rowi=match(bolus.fa$Site_Abbrev[i],wqTable$site)
+	tp=wqTable$TP[rowi]
+	srp=wqTable$SRP[rowi]
+	tn=wqTable$TN[rowi]
+	no3=wqTable$NO3[rowi]
+	nh4=wqTable$NH4[rowi]
+	tss=wqTable$tss[rowi]
+	vss=wqTable$vss[rowi]
+	chl=wqTable$chl[rowi]
+	x=data.frame(tp,srp,tn,no3,nh4,tss,vss,chl)
+	envTable=rbind(x,envTable)
+}
+bolusFA.wq.fit<-envfit(bolus.dist,envTable)
 
 plot(bolus.pcoa,cex=0)
 text(bolus.pcoa[,1],bolus.pcoa[,2],bolus.fa$Site_Abbrev,col=c(rep('red',nrow(bolus.fa[bolus.fa$Site_Abbrev=='BN',])),rep('blue',nrow(bolus.fa[bolus.fa$Site_Abbrev=='BS',])),rep('green',nrow(bolus.fa[bolus.fa$Site_Abbrev=='EN',])),rep('orange',nrow(bolus.fa[bolus.fa$Site_Abbrev=='ES',])),rep('violet',nrow(bolus.fa[bolus.fa$Site_Abbrev=='LL',])),rep('cyan',nrow(bolus.fa[bolus.fa$Site_Abbrev=='SH',]))))
+plot(bolusFA.fit,p.max=0.05,col='black')
+plot(bolusFA.wq.fit,p.max=0.05,col='red')
 
 #Compare chick growth to fatty acids in bolus as well as in livers and seston FA concentration
 #calculate averages for pufa, omega 3, epa, dha
@@ -93,7 +172,8 @@ avgSes.w3<-tapply(ses.fa$Omega3,ses.fa$Site_Abbrev,mean,na.rm=T)
 seSes.w3<-tapply(ses.fa$Omega3,ses.fa$Site_Abbrev,std.error,na.rm=T)
 avgSes.dha<-tapply(ses.fa$C22_6n3,ses.fa$Site_Abbrev,mean,na.rm=T)
 seSes.dha<-tapply(ses.fa$C22_6n3,ses.fa$Site_Abbrev,std.error,na.rm=T)
-plot(avgSes.pufa,chick.growth)
+plot(avgSes.pufa,chick.growth,pch=19,ylim=c(min(chick.growth-se.chick.growth),max(chick.growth+se.chick.growth)))
+errbar(avgSes.pufa,chick.growth,yplus=chick.growth+se.chick.growth,yminus=chick.growth-se.chick.growth,add=T)
 summary(lm(chick.growth~avgSes.pufa)) #r2=0.43 p=0.154 slope = -0.0088
 
 
