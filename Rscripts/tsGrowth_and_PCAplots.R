@@ -29,7 +29,7 @@ ses<-ses.fa[,6:52]
 ses<-as.matrix(ses)
 
 ses.dist<-vegdist(ses,method='bray')
-ses.pcoa<-cmdscale(ses.dist)
+ses.pcoa<-cmdscale(ses.dist,eig=TRUE,add=TRUE,x.ret=TRUE)
 
 anosim(ses.dist,grouping=ses.fa[,2]) #sig. = 0.001
 
@@ -68,8 +68,8 @@ for(i in 1:nrow(ses.fa)){
 
 fit.wq<-envfit(ses.dist,envTable)
 
-plot(ses.pcoa,pch=19,cex=0,xlab='PCA1',ylab='PCA2',col=c(rep('red',8),rep('blue',8),rep('green',8),rep('orange',8),rep('violet',8),rep('cyan',8)))
-text(ses.pcoa[,1],ses.pcoa[,2],ses.fa[,2],col=c(rep('red',8),rep('blue',8),rep('green',8),rep('orange',8),rep('violet',8),rep('cyan',8))) #It looks like there is strong grouping by river (ILR v UMR v Em.)
+plot(ses.pcoa$points,pch=19,cex=0,xlab='PCA1',ylab='PCA2',col=c(rep('red',8),rep('blue',8),rep('green',8),rep('orange',8),rep('violet',8),rep('cyan',8)))
+text(ses.pcoa$points[,1],ses.pcoa$points[,2],ses.fa[,2],col=c(rep('red',8),rep('blue',8),rep('green',8),rep('orange',8),rep('violet',8),rep('cyan',8))) #It looks like there is strong grouping by river (ILR v UMR v Em.)
 plot(fit,p.max=0.05,col='black',cex=0.5)
 plot(fit.wq,p.max=0.05,col='red',cex=0.5)
 
@@ -78,7 +78,7 @@ chickFA<-chick.fa[,as.numeric(c(17:63))]
 chickFA<-as.matrix(chickFA)
 
 chick.dist<-vegdist(chickFA,method='bray')
-chick.pcoa<-cmdscale(chick.dist)
+chick.pcoa<-cmdscale(chick.dist,eig=TRUE,add=TRUE,x.ret=TRUE)
 
 chickfa<-data.frame(chick.fa[,c(6,10,21,23:27,30:32,35:38,40:49,51:54,57:60,62:63)])
 chickfa.fit<-envfit(chick.dist,chickfa)
@@ -110,7 +110,7 @@ summary(anosim(chick.dist,grouping=chick.fa$Site_Abbrev)) #significance = 0.001
 bolusFA<-as.matrix(bolus.fa[,c(6:18,20:23,25:28,30,32:39,42:45,47:48)])
 
 bolus.dist<-vegdist(bolusFA)
-bolus.pcoa<-cmdscale(bolus.dist)
+bolus.pcoa<-cmdscale(bolus.dist,eig=T,add=T,x.ret=T)
 bolusFA.fit<-envfit(bolus.dist,bolusFA)
 
 envTable<-c()
